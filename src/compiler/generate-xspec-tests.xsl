@@ -567,7 +567,7 @@
             </xsl:when>
             <xsl:when test="exists(@test) and exists(node())">
                <variable name="impl:with-context" select="true()"/>
-               <variable name="impl:context-tmp" as="item()*">
+               <variable name="impl:context" as="item()*">
                   <choose>
                      <!-- aka "count($x:result) le 1" (so if empty, context is empty too) -->
                      <when test="empty($x:result[2])">
@@ -579,18 +579,6 @@
                      <otherwise>
                         <!-- no context node set here -->
                         <sequence select="{ @test }"/>
-                     </otherwise>
-                  </choose>
-               </variable>
-               <variable name="impl:context" as="item()?">
-                  <choose>
-                     <when test="$impl:context-tmp instance of node()+">
-                        <document>
-                           <sequence select="$impl:context-tmp"/>
-                        </document>
-                     </when>
-                     <otherwise>
-                        <sequence select="$impl:context-tmp"/>
                      </otherwise>
                   </choose>
                </variable>

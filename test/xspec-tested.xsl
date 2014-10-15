@@ -33,6 +33,9 @@
       </bar>
    </xsl:template>
 
+   <xsl:template match="my:verbatim">
+     <xsl:sequence select="." />
+   </xsl:template>
 </xsl:stylesheet>
 
 

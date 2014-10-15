@@ -11,6 +11,7 @@
 <?oxygen RNGSchema="http://xspec.googlecode.com/svn/trunk/xspec.rnc" type="compact"?>
 
 <t:description xmlns:t="http://www.jenitennison.com/xslt/xspec"
+               xmlns:my="http://example.org/ns/my"
                stylesheet="xspec-tested.xsl">
 
    <t:scenario label="context">
@@ -56,6 +57,33 @@
       </t:expect>
    </t:scenario>
 
+
+   <t:scenario label="expecting partial match">
+     <t:context>
+       <my:verbatim>
+         <my:foo>
+           <my:bar />
+           <my:baz />
+         </my:foo>
+       </my:verbatim>
+     </t:context>
+
+     <t:expect label="asserts against @test match"
+               test="/my:verbatim/my:foo">
+       <my:foo>
+         <my:bar />
+         <my:baz />
+       </my:foo>
+     </t:expect>
+
+     <t:expect label="fails against improper @test match"
+               test="/my:verbatim">
+       <my:foo>
+         <my:bar />
+         <my:baz />
+       </my:foo>
+     </t:expect>
+   </t:scenario>
 </t:description>
 
 

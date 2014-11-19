@@ -21,9 +21,6 @@
 
 <pkg:import-uri>http://www.jenitennison.com/xslt/xspec/format-xspec-report.xsl</pkg:import-uri>
 
-<xsl:param name="report-css-uri" select="
-    resolve-uri('test-report.css', static-base-uri())"/>
-
 <xsl:function name="x:pending-callback" as="node()*">
   <!-- returns formatted output for $pending. -->
   <xsl:param name="pending" as="xs:string?"/>
@@ -131,7 +128,7 @@
          </xsl:call-template>
          <xsl:text>)</xsl:text>
       </title>
-      <link rel="stylesheet" type="text/css" href="{ $report-css-uri }"/>
+      <link rel="stylesheet" type="text/css" href="test-report.css"/>
       <xsl:call-template name="x:html-head-callback"/>
     </head>
     <body>

@@ -75,6 +75,7 @@ java -cp "%CP%" net.sf.saxon.Transform -o:%RESULT% -s:%XSPEC% -xsl:%TEST_STYLESH
 echo.  
 echo Formatting Report...
 java -cp "%CP%" net.sf.saxon.Transform -o:%HTML% -s:%RESULT% -xsl:"%~dp0\..\src\reporter\format-xspec-report.xsl"
+copy /Y "%~dp0\..\src\reporter\test-report.css" "%TEST_DIR%"
 
 REM =======================================
 REM Check if coverage parameter was passed

@@ -283,6 +283,7 @@ xslt -o:"$HTML" \
     -s:"$RESULT" \
     -xsl:"$XSPEC_HOME/src/reporter/format-xspec-report.xsl" \
     || die "Error formating the report"
+cp "$XSPEC_HOME/src/reporter/test-report.css" "$TEST_DIR"
 if test -n "$COVERAGE"; then
     xslt -l:on \
         -o:"$COVERAGE_HTML" \

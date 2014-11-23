@@ -235,6 +235,12 @@
                 </xsl:attribute>
               </sequence>
             </xsl:when>
+            <xsl:when test="$call">
+              <xsl:message terminate="yes">
+                <xsl:text>error: call instruction requires one of </xsl:text>
+                <xsl:text>@template or @function</xsl:text>
+              </xsl:message>
+            </xsl:when>
             <xsl:when test="$apply">
                <!-- TODO: FIXME: ... -->
                <xsl:message terminate="yes">

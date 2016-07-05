@@ -104,6 +104,8 @@
   
 <xsl:template match="xsl:*" mode="test:create-xslt-generator">
   <xsl:element name="__x:{ local-name() }">
+    <!-- xsl:copy would normally retain namespace declarations -->
+    <xsl:sequence select="namespace::*" />
     <xsl:apply-templates select="@*|node()" mode="test:create-xslt-generator"/>
   </xsl:element>
 </xsl:template>  

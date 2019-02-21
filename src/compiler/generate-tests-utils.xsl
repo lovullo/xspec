@@ -11,6 +11,7 @@
 <xsl:stylesheet version="2.0" 
                 xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
                 xmlns:xs="http://www.w3.org/2001/XMLSchema"
+                xmlns:map="http://www.w3.org/2005/xpath-functions/map"
                 xmlns:msxsl="urn:schemas-microsoft-com:xslt"
                 exclude-result-prefixes="xs t msxsl"
                 xmlns:test="http://www.jenitennison.com/xslt/unit-test"
@@ -642,6 +643,13 @@
                                         then concat(prefix-from-QName($value), ':') 
                                         else '',
                               local-name-from-QName($value), ''')')" />
+    </xsl:when>
+    <!-- TODO -->
+    <xsl:when test="$value instance of map(*)">
+      <xsl:value-of select="concat(
+                              'map(', map:size( $value ), '){',
+                              string-join( map:keys( $value ), ', ' ),
+                              '}' )" />
     </xsl:when>
     <xsl:otherwise>
       <xsl:variable name="type" select="test:atom-type($value)" />

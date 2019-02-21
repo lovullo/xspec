@@ -13,6 +13,7 @@
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns="http://www.w3.org/1999/XSL/TransformAlias"
   xmlns:test="http://www.jenitennison.com/xslt/unit-test"
+  xmlns:err="http://www.w3.org/2005/xqt-errors"
   exclude-result-prefixes="#default test"
   xmlns:x="http://www.jenitennison.com/xslt/xspec"
   xmlns:__x="http://www.w3.org/1999/XSL/TransformAliasAlias"
@@ -189,95 +190,103 @@
       <xsl:apply-templates select="$variables" mode="x:generate-declarations"/>
       <xsl:if test="not($pending-p) and x:expect">
         <variable name="x:result" as="item()*">
-          <xsl:choose>
-            <xsl:when test="$call/@template">
-              <!-- Set up variables containing the parameter values -->
-              <xsl:apply-templates select="$call/x:param[1]" mode="x:compile" />
-              <!-- Create the template call -->
-              <xsl:variable name="template-call">
-                <call-template name="{$call/@template}">
-                  <xsl:for-each select="$call/x:param">
+          <try>
+            <xsl:choose>
+              <xsl:when test="$call/@template">
+                <!-- Set up variables containing the parameter values -->
+                <xsl:apply-templates select="$call/x:param[1]" mode="x:compile" />
+                <!-- Create the template call -->
+                <xsl:variable name="template-call">
+                  <call-template name="{$call/@template}">
+                    <xsl:for-each select="$call/x:param">
+                      <with-param name="{@name}" select="${@name}">
+                        <xsl:copy-of select="@tunnel, @as" />
+                      </with-param>
+                    </xsl:for-each>
+                  </call-template>
+                </xsl:variable>
+                <xsl:choose>
+                  <xsl:when test="$context">
+                    <!-- Set up the $context variable -->
+                    <xsl:apply-templates select="$context" mode="x:setup-context"/>
+                    <!-- Switch to the context and call the template -->
+                    <for-each select="$context">
+                      <xsl:copy-of select="$template-call" />
+                    </for-each>
+                  </xsl:when>
+                  <xsl:otherwise>
+                    <xsl:copy-of select="$template-call" />
+                  </xsl:otherwise>
+                </xsl:choose>
+              </xsl:when>
+              <xsl:when test="$call/@function">
+                <!-- Set up variables containing the parameter values -->
+                <xsl:apply-templates select="$call/x:param[1]" mode="x:compile" />
+                <!-- Create the function call -->
+                <sequence>
+                  <xsl:attribute name="select">
+                    <xsl:value-of select="$call/@function" />
+                    <xsl:text>(</xsl:text>
+                    <xsl:for-each select="$call/x:param">
+                      <xsl:sort select="xs:integer(@position)" />
+                      <xsl:text>$</xsl:text>
+                      <xsl:value-of select="if (@name) then @name else generate-id()" />
+                      <xsl:if test="position() != last()">, </xsl:if>
+                    </xsl:for-each>
+                    <xsl:text>)</xsl:text>
+                  </xsl:attribute>
+                </sequence>
+              </xsl:when>
+              <xsl:when test="$call">
+                <xsl:message terminate="yes">
+                  <xsl:text>error: call instruction requires one of </xsl:text>
+                  <xsl:text>@template or @function</xsl:text>
+                </xsl:message>
+              </xsl:when>
+              <xsl:when test="$apply">
+                 <!-- TODO: FIXME: ... -->
+                 <xsl:message terminate="yes">
+                    <xsl:text>The instruction t:apply is not supported yet!</xsl:text>
+                 </xsl:message>
+                 <!-- Set up variables containing the parameter values -->
+                 <xsl:apply-templates select="$apply/x:param[1]" mode="x:compile"/>
+                 <!-- Create the apply templates instruction -->
+                 <apply-templates>
+                    <xsl:copy-of select="$apply/@select | $apply/@mode"/>
+                    <xsl:for-each select="$apply/x:param">
+                       <with-param name="{ @name }" select="${ @name }">
+                          <xsl:copy-of select="@tunnel"/>
+                       </with-param>
+                    </xsl:for-each>
+                 </apply-templates>
+              </xsl:when>
+              <xsl:when test="$context">
+                <!-- Set up the $context variable -->
+                <xsl:apply-templates select="$context" mode="x:setup-context"/>
+                <!-- Set up variables containing the parameter values -->
+                <xsl:apply-templates select="$context/x:param[1]" mode="x:compile"/>
+                <!-- Create the template call -->
+                <apply-templates select="$impl:context">
+                  <xsl:sequence select="$context/@mode" />
+                  <xsl:for-each select="$context/x:param">
                     <with-param name="{@name}" select="${@name}">
                       <xsl:copy-of select="@tunnel, @as" />
                     </with-param>
                   </xsl:for-each>
-                </call-template>
-              </xsl:variable>
-              <xsl:choose>
-                <xsl:when test="$context">
-                  <!-- Set up the $context variable -->
-                  <xsl:apply-templates select="$context" mode="x:setup-context"/>
-                  <!-- Switch to the context and call the template -->
-                  <for-each select="$context">
-                    <xsl:copy-of select="$template-call" />
-                  </for-each>
-                </xsl:when>
-                <xsl:otherwise>
-                  <xsl:copy-of select="$template-call" />
-                </xsl:otherwise>
-              </xsl:choose>
-            </xsl:when>
-            <xsl:when test="$call/@function">
-              <!-- Set up variables containing the parameter values -->
-              <xsl:apply-templates select="$call/x:param[1]" mode="x:compile" />
-              <!-- Create the function call -->
-              <sequence>
-                <xsl:attribute name="select">
-                  <xsl:value-of select="$call/@function" />
-                  <xsl:text>(</xsl:text>
-                  <xsl:for-each select="$call/x:param">
-                    <xsl:sort select="xs:integer(@position)" />
-                    <xsl:text>$</xsl:text>
-                    <xsl:value-of select="if (@name) then @name else generate-id()" />
-                    <xsl:if test="position() != last()">, </xsl:if>
-                  </xsl:for-each>
-                  <xsl:text>)</xsl:text>
-                </xsl:attribute>
-              </sequence>
-            </xsl:when>
-            <xsl:when test="$call">
-              <xsl:message terminate="yes">
-                <xsl:text>error: call instruction requires one of </xsl:text>
-                <xsl:text>@template or @function</xsl:text>
-              </xsl:message>
-            </xsl:when>
-            <xsl:when test="$apply">
-               <!-- TODO: FIXME: ... -->
-               <xsl:message terminate="yes">
-                  <xsl:text>The instruction t:apply is not supported yet!</xsl:text>
-               </xsl:message>
-               <!-- Set up variables containing the parameter values -->
-               <xsl:apply-templates select="$apply/x:param[1]" mode="x:compile"/>
-               <!-- Create the apply templates instruction -->
-               <apply-templates>
-                  <xsl:copy-of select="$apply/@select | $apply/@mode"/>
-                  <xsl:for-each select="$apply/x:param">
-                     <with-param name="{ @name }" select="${ @name }">
-                        <xsl:copy-of select="@tunnel"/>
-                     </with-param>
-                  </xsl:for-each>
-               </apply-templates>
-            </xsl:when>
-            <xsl:when test="$context">
-              <!-- Set up the $context variable -->
-              <xsl:apply-templates select="$context" mode="x:setup-context"/>
-              <!-- Set up variables containing the parameter values -->
-              <xsl:apply-templates select="$context/x:param[1]" mode="x:compile"/>
-              <!-- Create the template call -->
-              <apply-templates select="$impl:context">
-                <xsl:sequence select="$context/@mode" />
-                <xsl:for-each select="$context/x:param">
-                  <with-param name="{@name}" select="${@name}">
-                    <xsl:copy-of select="@tunnel, @as" />
-                  </with-param>
-                </xsl:for-each>
-              </apply-templates>
-            </xsl:when>
-            <xsl:otherwise>
-               <!-- TODO: Adapt to a new error reporting facility (above usages too). -->
-               <xsl:message terminate="yes">Error: cannot happen.</xsl:message>
-            </xsl:otherwise>
-          </xsl:choose>      
+                </apply-templates>
+              </xsl:when>
+              <xsl:otherwise>
+                 <!-- TODO: Adapt to a new error reporting facility (above usages too). -->
+                 <xsl:message terminate="yes">Error: cannot happen.</xsl:message>
+              </xsl:otherwise>
+            </xsl:choose>
+
+            <!-- TODO: A better means of exposing errors.  At least this
+                 will fail tests and clearly render in the results. -->
+            <catch>
+              <sequence select="( $err:code, $err:description, $err:value )" />
+            </catch>
+          </try>
         </variable>
         <call-template name="test:report-value">
           <with-param name="value" select="$x:result" />
